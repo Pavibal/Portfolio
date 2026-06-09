@@ -1,7 +1,32 @@
-import { Mail, Phone } from 'lucide-react';
+import { Mail, Phone, Upload } from 'lucide-react';
 import { FaLinkedin } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
 
 const Hero = () => {
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  // Load saved image from localStorage on component mount
+  useEffect(() => {
+    const savedImage = localStorage.getItem('profileImage');
+    if (savedImage) {
+      setProfileImage(savedImage);
+    }
+  }, []);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const imageData = reader.result as string;
+        setProfileImage(imageData);
+        // Save to localStorage for persistence
+        localStorage.setItem('profileImage', imageData);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <section id="home" style={{
       minHeight: '100vh',
@@ -101,30 +126,65 @@ const Hero = () => {
               height: '450px',
               borderRadius: '50%',
               overflow: 'hidden',
-              border: '6px solid var(--border-color)',
+              border: '6px solid #87CEEB',
               backgroundColor: 'var(--bg-secondary)',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-              transition: 'transform 0.4s ease, border-color 0.4s ease',
+              boxShadow: '0 20px 40px rgba(135, 206, 235, 0.3)',
+              transition: 'transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              position: 'relative',
+              cursor: 'pointer'
             }}
               onMouseOver={(e) => {
                 e.currentTarget.style.transform = 'scale(1.03)';
-                e.currentTarget.style.borderColor = 'var(--text-primary)';
+                e.currentTarget.style.borderColor = '#00BFFF';
+                e.currentTarget.style.boxShadow = '0 25px 50px rgba(0, 191, 255, 0.4)';
               }}
               onMouseOut={(e) => {
                 e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.borderColor = 'var(--border-color)';
-              }}>
-              <img
-                src="/assets/images/profile_placeholder.png"
-                alt="Pavithra B"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = 'https://ui-avatars.com/api/?name=Maheswari+S&background=000&color=fff&size=450';
-                }}
+                e.currentTarget.style.borderColor = '#87CEEB';
+                e.currentTarget.style.boxShadow = '0 20px 40px rgba(135, 206, 235, 0.3)';
+              }}
+              onClick={() => document.getElementById('photo-upload')?.click()}>
+              
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Pavithra B"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  color: 'var(--text-secondary)'
+                }}>
+                  <Upload size={60} />
+                  <div style={{
+                    fontSize: '1.5rem',
+                    fontWeight: '600',
+                    textAlign: 'center'
+                  }}>
+                    Upload Photo
+                  </div>
+                  <div style={{
+                    fontSize: '0.9rem',
+                    opacity: 0.7
+                  }}>
+                    Click to select
+                  </div>
+                </div>
+              )}
+              
+              <input
+                type="file"
+                id="photo-upload"
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: 'none' }}
               />
             </div>
           </div>
